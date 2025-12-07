@@ -6,8 +6,8 @@ class Solution:
             self.lines = file.readlines()
         self.lines = list(map(list, self.lines))
         self.fill_tachyon()
-        # for l in self.lines:
-        #     print(l)
+        for l in self.lines:
+            print(l)
 
     def fill_tachyon(self):
         for i in range(len(self.lines)):
@@ -22,7 +22,8 @@ class Solution:
     def to_key(self, i0, j0):
         return (str(i0) + "," + str(j0))
 
-    def count_timelines(self, padding, count, i0,j0):
+    def count_timelines(self, padding, i0,j0):
+        count = 0
         # print(padding, "on line", i0, "col", j0)
 
         if self.to_key(i0, j0) in self.values:
@@ -35,20 +36,19 @@ class Solution:
 
         if self.lines[i0][j0] == '^' and self.lines[i0 - 1][j0] == '|':
             # print(padding, "split detected at ", i0, j0, ": counting from ", i0+1, j0-1)
-            count2 = self.count_timelines(padding + '|', count,  i0 + 1, j0 - 1)
+            count = self.count_timelines(padding + '|', i0 + 1, j0 - 1)
             # print(padding, "split detected at ", i0, j0, ": counting from ", i0+1, j0+1)
-            count2 += self.count_timelines(padding + '|', count,  i0 + 1, j0 + 1)
-            # print(padding, "putting value ", count2, "at", self.to_key(i0, j0))
-            self.values[self.to_key(i0,j0)] = count2
-            return count2
+            count += self.count_timelines(padding + '|',  i0 + 1, j0 + 1)
+            # print(padding, "putting value ", count, "at", self.to_key(i0, j0))
+            self.values[self.to_key(i0,j0)] = count
+            return count
         else:
-            return self.count_timelines(padding, count, i0 + 1,j0)
-        return (count)
+            return self.count_timelines(padding, i0 + 1,j0)
 
     def solve2(self):
         i0 = 1
         j0 = self.lines[i0].index('|')
-        return self.count_timelines("", 0, i0, j0)
+        return self.count_timelines("", i0, j0)
 
     def solve1(self):
         return (self.split_count)
