@@ -10,9 +10,8 @@ class Solution():
             line = line.split(',')
             line = tuple(map(int, line))
             line = [line]
-            # print("line is now ", line)
             self.circuits.append(line)
-        # print(self.circuits)
+        self.calculate_distances()
 
     def distance(self, pointA, pointB):
         return math.sqrt((pointB[0] - pointA[0])**2 + (pointB[1] - pointA[1])**2 + (pointB[2] - pointA[2]) ** 2)
@@ -24,49 +23,48 @@ class Solution():
                 if circuit2 == circuit:
                     continue
                 point2 = circuit2[0]
-                # print("add ",point[0],point[1],point[2],point2[0],point2[1],point2[2], "to distances with value", self.distance(point, point2))
                 self.distances[point[0],point[1],point[2],point2[0],point2[1],point2[2]] = self.distance(point, point2)
 
     def find_closest(self):
         couple = min(self.distances, key=self.distances.get)
-        # print("couple is", couple)
         revcouple = couple[3:6] + couple[0:3]
-        # print("revcouple is", revcouple)
+
         self.distances.pop(couple)
         self.distances.pop(revcouple)
-        # print(couple)
-        # print("found")
-        # couple = couple.split()
+
         pointA = (couple[0], couple[1], couple[2])
         pointB = (couple[3], couple[4], couple[5])
-        # print("closest points are", pointA, "and", pointB)
-        for circuit in self.circuits:
-            if pointA in circuit and pointB in circuit:
-                print("error :",pointA, "and", pointB, "already in same circuit")
-                # print(circuit)
-            elif pointA in circuit:
-                # print("append", pointB, "to", circuit)
-                circuit.append(pointB)
-                # print(circuit)
-            elif pointB in circuit:
-                # print("pop")
-                # print("removing", circuit[circuit.index(pointB)])
-                circuit.pop(circuit.index(pointB))
-                # print("trying to remove ", pointB, "from", circuit)
+
+        return (pointA, pointB)
+
+    def get_circuit_index(self, point):
+        for i in range(len(self.circuits)):
+            if point in self.circuits[i]:
+                return i
+
+    def connect(self, pointA, pointB):
+        index_a, index_b = self.get_circuit_index(pointA), self.get_circuit_index(pointB)
+        if (index_a == index_b):
+            pass
+        else:
+            self.circuits[index_a] += self.circuits[index_b]
+            self.circuits.pop(index_b)
 
     def solve1(self):
-        self.calculate_distances()
         for i in range(10):
-            sol.find_closest()
+            a, b = self.find_closest()
+            self.connect(a, b)
         sizes = sorted([len(c) for c in self.circuits])[::-1]
-        print(sizes)
-        print("FINAL CIRCUITS")
-        for circuit in sol.circuits:
-            print(circuit)
         return (sizes[0] * sizes[1] * sizes[2])
 
+    def solve2(self):
+        while len(self.circuits) > 1:
+            a, b = self.find_closest()
+            self.connect(a,b)
+        return a[0] * b[0]
 
-sol = Solution('example.txt')
-
+print("warning : this solution may take a while to compute for large inputs")
+sol = Solution('input.txt')
 
 print(sol.solve1())
+print(sol.solve2())
